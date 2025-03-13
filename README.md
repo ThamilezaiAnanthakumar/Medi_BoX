@@ -23,11 +23,10 @@ graph TD
     C --> D{Check for Unsafe Conditions}
     D -- Unsafe --> E[Trigger Buzzer Alert]
     D -- Unsafe --> F[Send SMS via Twilio]
-    D -- Safe --> G[Continue Monitoring]
     E --> G
     F --> H[Remind Patient to Take Medicine]
     H --> G
-    G --> A[End]
+    G --> A
 ```
 
 ---
