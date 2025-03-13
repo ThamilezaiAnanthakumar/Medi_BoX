@@ -19,11 +19,11 @@ The Med Box project is designed to monitor the temperature and humidity conditio
 ```mermaid
 graph TD
     A[Start] --> B[Monitor Conditions]
-    B --> C[Read Data from DHT11/DHT22 Sensor]
+    B --> C[Read Data from DHT11]
     C --> D{Check for Unsafe Conditions}
     D -- Unsafe --> E[Trigger Buzzer Alert]
     D -- Unsafe --> F[Send SMS via Twilio]
-    E --> G
+    E --> A
     F --> H[Remind Patient to Take Medicine]
     H --> G
     G --> A
