@@ -15,6 +15,7 @@ The Med Box project is designed to monitor the temperature and humidity conditio
 - **Buzzer**: A small buzzer to notify the patient to take medicine.
 - **Twilio API**: A service that sends SMS reminders to the patient's phone.
 
-- https://wokwi.com/projects/426694927306995713
+## Link to my online stimulation
+ - https://wokwi.com/projects/426694927306995713
   
 ---
