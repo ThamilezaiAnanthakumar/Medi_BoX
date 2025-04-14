@@ -13,6 +13,9 @@ The Med Box project is designed to monitor the temperature and humidity conditio
 - **Sensors**: DHT11 sensor (for measuring temperature and humidity)
 - **Buzzer**: A small buzzer to notify the patient to take medicine and ring alaram.
 
+  ![Stimulation](Assets/Stimulation.png)
+
+
 ## Link to my online stimulation
  - https://wokwi.com/projects/426694927306995713
   
