@@ -1,0 +1,598 @@
+[
+    {
+        "id": "79d61b706ecead61",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "mqtt-light",
+        "type": "mqtt in",
+        "z": "79d61b706ecead61",
+        "name": "Light Sensor",
+        "topic": "esp32/light",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "ab0a2509d76c02a7",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 260,
+        "wires": [
+            [
+                "process-light",
+                "light-chart"
+            ]
+        ]
+    },
+    {
+        "id": "process-light",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Process Light",
+        "func": "let intensity = parseFloat(msg.payload);\nglobal.set('light', intensity);\nreturn { payload: intensity };",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 260,
+        "wires": [
+            [
+                "light-gauge",
+                "servo-calc"
+            ]
+        ]
+    },
+    {
+        "id": "light-gauge",
+        "type": "ui_gauge",
+        "z": "79d61b706ecead61",
+        "name": "Light Intensity",
+        "group": "group1",
+        "order": 3,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "Light Intensity",
+        "label": "",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 1,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 660,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "light-chart",
+        "type": "ui_chart",
+        "z": "79d61b706ecead61",
+        "name": "Avg Light Chart",
+        "group": "group1",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "Avg Light Intensity",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "1",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": true,
+        "colors": [
+            "#2ed40c",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 660,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "mqtt-temp",
+        "type": "mqtt in",
+        "z": "79d61b706ecead61",
+        "name": "Temperature",
+        "topic": "esp32/temp",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "ab0a2509d76c02a7",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 340,
+        "wires": [
+            [
+                "19486c34176ed84f"
+            ]
+        ]
+    },
+    {
+        "id": "servo-calc",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Servo Angle Calc",
+        "func": "// Get global values or set defaults\nlet I = global.get('light') || 0.5;  // Default to 0.5 if 'light' is not set\n  \nlet T = global.get('T') || 29 ;     \n\nlet theta_offset = global.get('theta_offset') //|| 30;\nlet gamma = global.get('gamma') || 0.75;\nlet tmed = global.get('tmed') || 30;\nlet ts = global.get('ts') || 5;\nlet tu = global.get('tu') || 120;\n\n// Calculate theta (servo angle)\nlet theta = theta_offset + (180 -theta_offset ) * I * gamma * Math.log(ts / tu) * (T / tmed);\n\n// Ensure theta is within the valid range of 0 to 180 degrees\nif (theta < theta_offset) theta = theta_offset;\nif (theta > 180) theta = 180;\n\n// Set the calculated servo angle as global\nglobal.set('servo_angle', theta);\n\n// Return both temperature and the calculated servo angle\nreturn { payload: theta}; // Send servo angle;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 420,
+        "wires": [
+            [
+                "servo-gauge",
+                "2d4926f5c8be456f"
+            ]
+        ]
+    },
+    {
+        "id": "servo-gauge",
+        "type": "ui_gauge",
+        "z": "79d61b706ecead61",
+        "name": "Servo Angle",
+        "group": "group2",
+        "order": 4,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "Servo Angle (°)",
+        "label": "°",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 180,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 730,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "5915759e7059f558",
+        "type": "ui_slider",
+        "z": "79d61b706ecead61",
+        "name": "Sending time",
+        "label": "Sending time",
+        "tooltip": "",
+        "group": "group1",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "240",
+        "step": 1,
+        "className": "",
+        "x": 250,
+        "y": 620,
+        "wires": [
+            [
+                "c98997aa00483819"
+            ]
+        ]
+    },
+    {
+        "id": "29d6f0b2666b7ce1",
+        "type": "ui_slider",
+        "z": "79d61b706ecead61",
+        "name": "Minimum angle",
+        "label": "Minimum angle",
+        "tooltip": "",
+        "group": "group2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "120",
+        "step": 1,
+        "className": "",
+        "x": 260,
+        "y": 680,
+        "wires": [
+            [
+                "79663d91651db2f9"
+            ]
+        ]
+    },
+    {
+        "id": "70118fe408bcc485",
+        "type": "ui_slider",
+        "z": "79d61b706ecead61",
+        "name": "Sampling Interval",
+        "label": "Sampling Interval",
+        "tooltip": "",
+        "group": "group1",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "20",
+        "step": 1,
+        "className": "",
+        "x": 270,
+        "y": 560,
+        "wires": [
+            [
+                "3d69fc1a638005f0"
+            ]
+        ]
+    },
+    {
+        "id": "20f1db6d78c9dd65",
+        "type": "ui_slider",
+        "z": "79d61b706ecead61",
+        "name": "Ideal Temperature ",
+        "label": "Ideal Temperature ",
+        "tooltip": "",
+        "group": "group2",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": "10",
+        "max": "40",
+        "step": 1,
+        "className": "",
+        "x": 270,
+        "y": 740,
+        "wires": [
+            [
+                "6943a6410ec298d9"
+            ]
+        ]
+    },
+    {
+        "id": "dffe2fa2785474ad",
+        "type": "ui_slider",
+        "z": "79d61b706ecead61",
+        "name": "Controlling Factor",
+        "label": "Controlling Factor ",
+        "tooltip": "",
+        "group": "group2",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": 0,
+        "max": "1",
+        "step": "0.01",
+        "className": "",
+        "x": 270,
+        "y": 800,
+        "wires": [
+            [
+                "c5f2b8ee6a297ec9"
+            ]
+        ]
+    },
+    {
+        "id": "3d69fc1a638005f0",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "sampling Interval",
+        "func": "let Sampling_Interval = parseFloat(msg.payload);\nglobal.set('ts', Sampling_Interval);\nreturn { payload: Sampling_Interval };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 560,
+        "wires": [
+            [
+                "servo-calc",
+                "d914cb9af603f384"
+            ]
+        ]
+    },
+    {
+        "id": "c98997aa00483819",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Sending time",
+        "func": "let Sending_time = parseFloat(msg.payload);\nglobal.set('tu', Sending_time);\nreturn { payload: Sending_time };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 620,
+        "wires": [
+            [
+                "servo-calc",
+                "fc9a024040138a31"
+            ]
+        ]
+    },
+    {
+        "id": "79663d91651db2f9",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Minimum angle",
+        "func": "let Minimum_angle = parseFloat(msg.payload);\nglobal.set('theta_offset', Minimum_angle);\nreturn { payload: Minimum_angle };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 680,
+        "wires": [
+            [
+                "servo-calc"
+            ]
+        ]
+    },
+    {
+        "id": "6943a6410ec298d9",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Ideal temperature ",
+        "func": "let Ideal_Temperature = parseFloat(msg.payload);\nglobal.set('tmed',Ideal_Temperature );\nreturn { payload: Ideal_Temperature};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 740,
+        "wires": [
+            [
+                "servo-calc"
+            ]
+        ]
+    },
+    {
+        "id": "c5f2b8ee6a297ec9",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Controlling factor",
+        "func": "let Controlling_Factor  = parseFloat(msg.payload);\nglobal.set('gamma', Controlling_Factor);\nreturn { payload: Controlling_Factor };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 800,
+        "wires": [
+            [
+                "servo-calc"
+            ]
+        ]
+    },
+    {
+        "id": "19486c34176ed84f",
+        "type": "function",
+        "z": "79d61b706ecead61",
+        "name": "Temperature ",
+        "func": "let Temperature  = parseFloat(msg.payload);\nglobal.set('T', Temperature );\nreturn {payload: Temperature};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 340,
+        "wires": [
+            [
+                "servo-calc",
+                "4b346714b873ea3f"
+            ]
+        ]
+    },
+    {
+        "id": "4b346714b873ea3f",
+        "type": "ui_gauge",
+        "z": "79d61b706ecead61",
+        "name": "Temperature ",
+        "group": "group2",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperature ",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 750,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "d914cb9af603f384",
+        "type": "mqtt out",
+        "z": "79d61b706ecead61",
+        "name": "",
+        "topic": "Sampling",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "ab0a2509d76c02a7",
+        "x": 820,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "fc9a024040138a31",
+        "type": "mqtt out",
+        "z": "79d61b706ecead61",
+        "name": "",
+        "topic": "sending",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "ab0a2509d76c02a7",
+        "x": 820,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "2d4926f5c8be456f",
+        "type": "mqtt out",
+        "z": "79d61b706ecead61",
+        "name": "",
+        "topic": "servoangle",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "ab0a2509d76c02a7",
+        "x": 930,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "ab0a2509d76c02a7",
+        "type": "mqtt-broker",
+        "z": "79d61b706ecead61",
+        "name": "",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "group1",
+        "type": "ui_group",
+        "name": "Light Intensity ",
+        "tab": "tab1",
+        "order": 2,
+        "disp": true,
+        "width": "8",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "group2",
+        "type": "ui_group",
+        "name": "Servo & Temp",
+        "tab": "tab1",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "tab1",
+        "type": "ui_tab",
+        "name": "Smart MediBox Dashboard",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
